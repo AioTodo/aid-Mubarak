@@ -299,12 +299,60 @@
                 transform: scale(1) rotate(180deg); 
             }
         }
+
+        .audio-controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .audio-btn {
+            background: rgba(255, 215, 0, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            color: #1a237e;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .audio-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .volume-control {
+            background: rgba(255, 215, 0, 0.9);
+            border: none;
+            border-radius: 15px;
+            width: 100px;
+            height: 30px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .volume-control::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1a237e;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="stars"></div>
     <div class="moon"></div>
-    <div class="mosque-silhouette"></div>
+
     
     <div class="floating-elements">
         <div class="floating-star" style="left: 10%; animation-delay: 0s;">✦</div>
@@ -328,6 +376,18 @@
         </p>
     </div>
 
+    <!-- Audio Controls -->
+    <div class="audio-controls">
+        <button class="audio-btn" id="playPauseBtn" title="Play/Pause Music">▶️</button>
+        <input type="range" class="volume-control" id="volumeSlider" min="0" max="100" value="50" title="Volume">
+    </div>
+
+    <!-- Hidden Audio Element -->
+    <audio id="backgroundAudio" loop>
+        <source src="audio-aid.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
     <script>
         // Create twinkling stars
         function createStars() {
@@ -347,13 +407,13 @@
 
         // Create sparkle effects on mouse move
         document.addEventListener('mousemove', (e) => {
-            if (Math.random() < 0.99) { // 15% chance (increased from 10%)
+            if (Math.random() < 0.15) { // 15% chance (increased from 10%)
                 const sparkle = document.createElement('div');
                 sparkle.className = 'sparkle';
                 sparkle.innerHTML = '✨';
                 sparkle.style.left = e.clientX + 'px';
                 sparkle.style.top = e.clientY + 'px';
-                sparkle.style.fontSize = (Math.random() * 12 + 9) + 'px'; // 20% smaller (was 20+15, now 16+12)
+                sparkle.style.fontSize = (Math.random() * 16 + 12) + 'px'; // 20% smaller (was 20+15, now 16+12)
                 document.body.appendChild(sparkle);
                 
                 setTimeout(() => {
@@ -364,6 +424,39 @@
 
         // Initialize stars when page loads
         window.addEventListener('load', createStars);
+
+        // Audio Controls
+        const audio = document.getElementById('backgroundAudio');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+
+        // Set initial volume
+        audio.volume = 0.5;
+
+        // Play/Pause functionality
+        playPauseBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playPauseBtn.innerHTML = '⏸️';
+                playPauseBtn.title = 'Pause Music';
+            } else {
+                audio.pause();
+                playPauseBtn.innerHTML = '▶️';
+                playPauseBtn.title = 'Play Music';
+            }
+        });
+
+        // Volume control
+        volumeSlider.addEventListener('input', () => {
+            audio.volume = volumeSlider.value / 100;
+        });
+
+        // Auto-play attempt (modern browsers may block this)
+        window.addEventListener('load', () => {
+            audio.play().catch(e => {
+                console.log('Auto-play was prevented. User interaction required.');
+            });
+        });
 
         // Add click effect to main text
         document.querySelector('.main-text').addEventListener('click', function() {
